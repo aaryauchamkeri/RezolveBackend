@@ -68,7 +68,7 @@ server.post('/login', async (req, res) => {
 (async () => {
     const buffer = await fs.readFile('./prompt.txt');
     instructions = buffer.toString();
-    server.listen(3001, '0.0.0.0', () => {
+    server.listen(process.env.PORT || 3000, '0.0.0.0', () => {
         console.log('server started');
     });
 })()
