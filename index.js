@@ -11,8 +11,11 @@ const server = express();
 server.use(express.json({ limit: "50mb" }));
 
 server.post('/', async (req, res) => {
+    const messageHistory = req.body['messages'];
     const prompt = req.body['content'];
     const images = req.body['images'];
+
+    console.log(messageHistory);
 
     const enc = images.map(img => {
         return {
@@ -23,36 +26,21 @@ server.post('/', async (req, res) => {
         }
     });
 
-    console.log(images);
-    console.log(enc);
-
     const response = await client.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
             { 'role': 'system', content: instructions },
-            {
-                'role': 'user',
-                content: [
-                    { type: 'text', text: prompt },
-                    ...enc
-                ]
-
-            }
+            ...messageHistory
+            // {
+            //     'role': 'user',
+            //     content: [
+            //         { type: 'text', text: prompt },
+            //         ...enc
+            //     ]
+            // }
         ]
     });
     res.json({ 'response': response.choices[0].message.content });
-    // if (image) {
-    // } else {
-    //     const response = client.chat.completions.create({
-    //         model: 'gpt-4o-mini',
-    //         messages: [
-    //             { 'role': 'system', content: instructions },
-    //             { 'role': 'user', content: prompt }
-    //         ]
-    //     });
-    //     res.json({ 'response': (await response).choices[0].message.content });
-    // }
-
 });
 
 server.post('/login', async (req, res) => {
@@ -68,7 +56,7 @@ server.post('/login', async (req, res) => {
 (async () => {
     const buffer = await fs.readFile('./prompt.txt');
     instructions = buffer.toString();
-    server.listen(process.env.PORT || 3000, '0.0.0.0', () => {
+    server.listen(process.env.PORT || 3001, '0.0.0.0', () => {
         console.log('server started');
     });
 })()
